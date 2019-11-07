@@ -1,0 +1,18 @@
+---
+title: "Homework 5"
+author: "Harsha Senapathi"
+date: "11/7/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(rvest)
+
+set.seed(1)
+```
+
