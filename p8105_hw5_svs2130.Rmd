@@ -11,7 +11,7 @@ library(rvest)
 library(viridis)
 
 knitr::opts_chunk$set(
-  echo = TRUE,
+  echo = FALSE,
   warning = FALSE,
   fig.width = 8,
   fig.height = 6,
@@ -31,6 +31,9 @@ iris_with_missing = iris %>%
 ```
 
 ### Problem 1
+
+The purpose of this function is to fill in missing data of the dataset presented. Below we are replacing numeric vectors with mean of the column and character vectors with plant species viriginica.
+
 ```{r}
 fill_data = function(x) {
   if (is.numeric(x)) {
@@ -45,16 +48,27 @@ iris = map_df(iris_with_missing, fill_data)
 
 ### Problem 2
 
+Creating a list named `file_name` from the directory. 
+
 ```{r}
 path = str_c("./data/", list.files("./data/")) 
 file_name = list.files("./data/")
+```
 
+Making a table with 2 columns: `file_name` and its `path`.
+```{r}
 vec_file_name = 
   tibble( 
     path = path[1:20], 
     file_name = file_name[1:20]
 )
+```
 
+
+Tidying data:
+Using `purrr` function to map and read csv data from file paths, and then unnesting the data using `unnest()`. Next cleaned variable names using `seperate` and changing the structure from wide to long.
+
+```{r}
 pcpt_data_tidy =
   purrr::map_df(vec_file_name$path, read_csv) %>% 
   unnest() %>% 
@@ -67,8 +81,11 @@ pcpt_data_tidy =
     names_prefix = "week_"
   ) %>% 
  select(arm, id_num, week, obsv)
+```
 
+Creating a ggplot comparind the change in observed values between the subject of treatment and control arm over the weeks.
 
+```{r}
 pcpt_data_tidy %>% 
   ungroup() %>% 
   mutate(arm_id = paste(arm, id_num, sep = "_")) %>% 
@@ -83,14 +100,17 @@ pcpt_data_tidy %>%
 
 ```
 
-Problem 3
+### Problem 3:
+
+The function below simulates a regression model for y, where x is a random normal variable of n = 30, intercept of 2 and variance of 50, in a range of 0 to variance. `ls_fit` is the regression model and the corresponding estimated beta and p-value are listed in the table.
 
 ```{r}
+set.seed(1)
 
 sim_reg = function(beta1 = 0) {
   
   sim_regression = tibble(
-    x = rnorm(30, mean = 0, sd = 1),
+    x = rnorm(30, mean = 50, sd = 50^(1/2)),
     y = 2 + beta1 * x + rnorm(30, 0, sd = 50^(1/2))
       )
   
@@ -104,8 +124,10 @@ sim_reg = function(beta1 = 0) {
 
 ```
 
+Runing the model for values of beta 1 = 0 to 6, 10,000 times for each value of beta using the above function. The results are will be listed in the results table.
 
 ```{r}
+set.seed(1)
 
 results = tibble(beta_1 = c(0, 1, 2, 3, 4, 5, 6)) %>% 
   mutate(output_lists = map(.x = beta_1, ~rerun(10000, sim_reg(beta1 = .x))),
@@ -115,6 +137,7 @@ results = tibble(beta_1 = c(0, 1, 2, 3, 4, 5, 6)) %>%
 
 ```
 
+Graphing the beta1 values with the percent at which null is rejected for each beta1.
 
 ```{r}
 
@@ -129,6 +152,7 @@ results %>%
 
 ```
 
+Comparing geometric lines of graph between mean estimated values for a corresponding beta and graph of mean estimated values for which p<0.05 and corresponding beta. We could see that there is difference in mean values and, and the means are different from each other. While one is a straight line the other is a curve.
 
 ```{r}
 
