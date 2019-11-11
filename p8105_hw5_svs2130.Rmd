@@ -11,8 +11,9 @@ library(rvest)
 library(viridis)
 
 knitr::opts_chunk$set(
-  echo = FALSE,
+  echo = TRUE,
   warning = FALSE,
+  message = FALSE,
   fig.width = 8,
   fig.height = 6,
   out.width = "90%"
@@ -110,7 +111,7 @@ set.seed(1)
 sim_reg = function(beta1 = 0) {
   
   sim_regression = tibble(
-    x = rnorm(30, mean = 50, sd = 50^(1/2)),
+    x = rnorm(30, mean = 0, sd = 2),
     y = 2 + beta1 * x + rnorm(30, 0, sd = 50^(1/2))
       )
   
